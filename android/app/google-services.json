@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "415962414488",
+    "firebase_url": "https://food-data-real-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "food-data-real",
+    "storage_bucket": "food-data-real.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:415962414488:android:98494660236e3bffd37fed",
+        "android_client_info": {
+          "package_name": "com.example.fooddataagg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "415962414488-mkeh5dm9au7btr98ht8k5d6eiqoto9jg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTuUEEv2WffRbd8eBl5NNzsiw4xTqsLuU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "415962414488-mkeh5dm9au7btr98ht8k5d6eiqoto9jg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "415962414488-7hnl4kv4l673i6l0itnhaedr6erdfd8o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fooddataagg"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
