@@ -11,12 +11,7 @@ final client = MqttServerClient('mqtt.flespi.io', '1883');
 
 Future<int> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  client.logging(on: true);
-  client.keepAlivePeriod = 60;
-  client.onDisconnected = onDisconnected;
-  client.onConnected = onConnected;
-  client.pongCallback = pong;
-  client.onSubscribed = onSubscribed;
+
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -54,39 +49,5 @@ Future<int> main() async {
     exit(-1);
   }
   return 0;
-}
-
-
-
-/// The unsolicited disconnect callback
-void onDisconnected() {
-  print('OnDisconnected client callback - Client disconnection');
-  if (client.connectionStatus!.disconnectionOrigin ==
-      MqttDisconnectionOrigin.solicited) {
-    print('OnDisconnected callback is solicited, this is correct');
-  }
-}
-
-/// The successful connect callback
-void onConnected() {
-  print('OnConnected client callback - Client connection was sucessful');
-  client.subscribe("topic/this", MqttQos.atMostOnce);
-}
-
-/// Pong callback
-void pong() {
-  print('Ping response client callback invoked');
-}
-
-void onSubscribed(String message){
-  const pubTopic = 'topic/this';
-  final builder = MqttClientPayloadBuilder();
-  builder.addString('Hello from mqtt_client');
-
-  print('Subscribing to the $pubTopic topic');
-  client.subscribe(pubTopic, MqttQos.exactlyOnce);
-
-  print('Publishing our topic');
-  client.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
 }
 

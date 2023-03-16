@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:fooddataagg/command.dart';
 import 'package:fooddataagg/firebase.dart';
 
 class MyApp extends StatelessWidget {
@@ -30,10 +31,100 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   FireBaseDB db = FireBaseDB();
+  List<Command> _commands = [];
   double _currentSliderValue = 20;
+  double _settingSliderValue = 3;
+  dynamic _value = 0;
 
-  void circleButtonPress(double weight) {
-    db.testSet(weight);
+  void circleButtonPress(String buttonText) {
+    setState(() {
+      Command? command = null;
+      switch (buttonText) {
+        case "Feed now":
+          command = instantFeedCommand();
+          _value = _currentSliderValue;
+          break;
+        case "Save settings":
+          command = instantFeedCommand();
+          _value = _settingSliderValue;
+          break;
+      }
+      if (command != null) {
+        command.execute(_value);
+        _commands.add(command);
+      }
+    });
+  }
+
+  Widget roundButton(String buttonText, double size) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () => (circleButtonPress(buttonText)),
+        style: ElevatedButton.styleFrom(
+          shape: CircleBorder(),
+          padding: EdgeInsets.all(size),
+          backgroundColor: Colors.blue, // <-- Button color
+          foregroundColor: Colors.white, // <-- Splash color),)
+        ),
+        child: Text(
+          buttonText,
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget controlTab() {
+    return Column(children: [
+      Padding(
+          padding: EdgeInsets.only(top: 200.0, bottom: 50.0),
+          child: roundButton("Feed now", 90)),
+      Column(children: [
+        const Text("Choose amount"),
+        Slider(
+          value: _currentSliderValue,
+          max: 200,
+          divisions: 40,
+          label: "${_currentSliderValue.round()}g",
+          onChanged: (double value) {
+            setState(() {
+              _currentSliderValue = value;
+            });
+          },
+        ),
+      ]),
+    ]);
+  }
+
+  Widget settingsTab() {
+    return Column(children: [
+      const SizedBox(
+        height: 200,
+      ),
+      Column(children: [
+        const Text("Interval",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold
+          ),
+        ),
+        Slider(
+      value: _settingSliderValue,
+      max: 10,
+      divisions: 10,
+      label: "${_settingSliderValue.round()} times a day",
+      onChanged: (double value) {
+        setState(() {
+          _settingSliderValue = value;
+        });
+      },
+        ),
+      ]),
+      roundButton("Save settings", 50)
+    ]);
   }
 
   @override
@@ -52,42 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             title: const Text('Tabs Demo'),
           ),
-          body: TabBarView(
-            children: [
-              Text("Stats placeholder"),
-              Icon(Icons.directions_transit),
-              Column(children: [
-                Padding(
-                    padding: EdgeInsets.only(top: 200.0, bottom: 50.0),
-                    child: Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => (circleButtonPress(_currentSliderValue)),
-                        style: ElevatedButton.styleFrom(
-                          shape: CircleBorder(),
-                          padding: EdgeInsets.all(75),
-                          backgroundColor: Colors.blue, // <-- Button color
-                          foregroundColor: Colors.white, // <-- Splash color),)
-                        ),
-                        child: const Text("Feed now"),
-                      ),
-                    )),
-                Column(children: [
-                  const Text("Choose amount"),
-                  Slider(
-                    value: _currentSliderValue,
-                    max: 200,
-                    divisions: 40,
-                    label: "${_currentSliderValue.round()}g",
-                    onChanged: (double value) {
-                      setState(() {
-                        _currentSliderValue = value;
-                      });
-                    },
-                  ),
-                ]),
-              ]),
-            ],
-          ),
+          body: TabBarView(children: [
+            Text("Stats placeholder"),
+            settingsTab(),
+            controlTab(),
+          ]),
         ),
       ),
     );

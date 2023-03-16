@@ -7,6 +7,15 @@ class FireBaseDB{
 
   DatabaseReference ref = FirebaseDatabase.instance.ref("");
 
+  static final FireBaseDB _singleton = FireBaseDB._internal();
+
+  factory FireBaseDB() { // Making the database singleton allows us to share the instance in the command pattern
+    return _singleton;
+  }
+
+  FireBaseDB._internal();
+
+
   initDB() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
