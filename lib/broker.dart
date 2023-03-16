@@ -89,5 +89,8 @@ class Broker {
     client.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
   }
 
+  void sendMessage(String message, String message2){
+
+  }
 
 }

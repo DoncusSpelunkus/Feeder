@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:fooddataagg/broker.dart';
 import 'package:fooddataagg/ui.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,6 +11,12 @@ main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  Broker broker = Broker();
+
+  broker.brokerSetup();
+
   runApp(const MyApp());
+
+
 }
 

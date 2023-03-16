@@ -24,13 +24,21 @@ class FireBaseDB{
   }
 
   testSet(double weight) async{
-    setRef();
+    setRef("Weight");
     await ref.set({
       "Weight": weight.toString(),
     });
   }
 
-  setRef(){
-    ref = FirebaseDatabase.instance.ref("Weight/${DateFormat("yyyy-MM-dd").format(DateTime.now())}/${DateFormat("HH:mm:ss").format(DateTime.now())}");
+  setRef(String tree){
+    ref = FirebaseDatabase.instance.ref("$tree/${DateFormat("yyyy-MM-dd").format(DateTime.now())}/${DateFormat("HH:mm:ss").format(DateTime.now())}");
+  }
+
+  makeSetting(double time, double weight, String date) async{
+    setRef("Setting");
+    await ref.set({
+      "Time": time.toString(),
+      "Weight": weight.toString()
+    });
   }
 }
