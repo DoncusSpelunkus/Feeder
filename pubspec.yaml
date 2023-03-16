@@ -39,6 +39,7 @@ dependencies:
   firebase_database: ^10.0.15
   firebase_core: ^2.7.1
   intl: ^0.18.0
+  flutter_alarm_clock: ^0.0.2
 
 dev_dependencies:
   flutter_test:

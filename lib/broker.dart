@@ -1,19 +1,23 @@
-import 'dart:async';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
-import 'package:fooddataagg/ui.dart';
+
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 
 
 class Broker {
 
+  static final Broker _singleton = Broker._internal();
+
+  factory Broker() { // Making the database singleton allows us to share the instance in the command pattern
+    return _singleton;
+  }
+
+  Broker._internal();
+
   final client = MqttServerClient('mqtt.flespi.io', '1883');
 
-  void brokerSetup(){
+  Future<int> brokerSetup() async {
     client.logging(on: true);
     client.keepAlivePeriod = 60;
     client.onDisconnected = onDisconnected;
@@ -31,6 +35,26 @@ class Broker {
         .withWillQos(MqttQos.atLeastOnce);
     print('client connecting....');
     client.connectionMessage = connMess;
+
+    try {
+      await client.connect();
+    } on NoConnectionException catch (e) {
+      print('client exception - $e');
+      client.disconnect();
+    } on SocketException catch (e) {
+      print('socket exception - $e');
+      client.disconnect();
+    }
+
+    if (client.connectionStatus!.state == MqttConnectionState.connected) {
+      print('client connected');
+    } else {
+      print('client connection failed - disconnecting, status is ${client.connectionStatus}');
+      client.disconnect();
+      exit(-1);
+    }
+    return 0;
+
   }
 
   /// The unsolicited disconnect callback
