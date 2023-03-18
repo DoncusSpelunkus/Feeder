@@ -15,6 +15,8 @@ main() async {
 
   broker.brokerSetup();
 
+  broker.startUp();
+
   runApp(const MyApp());
 
 

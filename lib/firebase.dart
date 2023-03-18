@@ -34,6 +34,7 @@ class FireBaseDB{
     ref = FirebaseDatabase.instance.ref("$tree/${DateFormat("yyyy-MM-dd").format(DateTime.now())}/${DateFormat("HH:mm:ss").format(DateTime.now())}");
   }
 
+
   makeSetting(double time, double weight, String date) async{
     setRef("Setting");
     await ref.set({

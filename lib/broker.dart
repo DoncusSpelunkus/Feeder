@@ -1,5 +1,7 @@
+import 'dart:ffi';
 import 'dart:io';
 
+import 'package:fooddataagg/firebase.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
@@ -23,7 +25,10 @@ class Broker {
     client.onDisconnected = onDisconnected;
     client.onConnected = onConnected;
     client.pongCallback = pong;
-    client.onSubscribed = onSubscribed;
+    client.autoReconnect = true;
+    client.resubscribeOnAutoReconnect = true;
+    FireBaseDB db = FireBaseDB();
+
 
     final connMess = MqttConnectMessage()
         .authenticateAs("Mr7DlDWxIjdRE412ku8uxCnxGeZnSISvZQWbjHyPOBwiun8EH6W2x7q1adcSLVbB",
@@ -33,9 +38,33 @@ class Broker {
         .withWillMessage('My Will message')
         .startClean()
         .withWillQos(MqttQos.atLeastOnce);
-    print('client connecting....');
     client.connectionMessage = connMess;
 
+    await connectBroker();
+
+    if (client.connectionStatus!.state == MqttConnectionState.connected) {
+      print('connected');
+    } else {
+      print('connection failed, status is ${client.connectionStatus}');
+      client.disconnect();
+      exit(-1);
+    }
+
+    client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+      final recMess = c![0].payload as MqttPublishMessage;
+      final pt =
+      MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      var messageDouble = double.parse(pt.toString());
+      db.testSet(messageDouble);
+      print(messageDouble);
+    });
+
+    return 0;
+
+
+  }
+
+  Future<void> connectBroker() async {
     try {
       await client.connect();
     } on NoConnectionException catch (e) {
@@ -45,52 +74,43 @@ class Broker {
       print('socket exception - $e');
       client.disconnect();
     }
-
-    if (client.connectionStatus!.state == MqttConnectionState.connected) {
-      print('client connected');
-    } else {
-      print('client connection failed - disconnecting, status is ${client.connectionStatus}');
-      client.disconnect();
-      exit(-1);
-    }
-    return 0;
-
   }
+
 
   /// The unsolicited disconnect callback
   void onDisconnected() {
-    print('OnDisconnected client callback - Client disconnection');
+    print('Disconnected');
     if (client.connectionStatus!.disconnectionOrigin ==
-        MqttDisconnectionOrigin.solicited) {
-      print('OnDisconnected callback is solicited, this is correct');
-    }
+        MqttDisconnectionOrigin.solicited) {}
   }
 
   /// The successful connect callback
   void onConnected() {
-    print('OnConnected client callback - Client connection was sucessful');
-    client.subscribe("topic/this", MqttQos.atMostOnce);
+    print('Connected');
+    client.subscribe("ESP/Publish", MqttQos.atMostOnce);
+
   }
 
   /// Pong callback
   void pong() {
-    print('Ping response client callback invoked');
+    print('Ping');
   }
 
-  void onSubscribed(String message){
-    const pubTopic = 'topic/this';
+  void publish(String message){
+    const pubTopic = 'APP/Publish';
     final builder = MqttClientPayloadBuilder();
-    builder.addString('Hello from mqtt_client');
+    builder.addString(message);
 
-    print('Subscribing to the $pubTopic topic');
-    client.subscribe(pubTopic, MqttQos.exactlyOnce);
-
-    print('Publishing our topic');
     client.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
   }
 
-  void sendMessage(String message, String message2){
+  void startUp(){
+    const pubTopic = 'APP/Publish';
+    final builder = MqttClientPayloadBuilder();
+    builder.addString("Hello");
 
+    client.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
   }
+
 
 }
