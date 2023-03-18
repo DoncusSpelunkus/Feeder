@@ -33,7 +33,9 @@ class _MyHomePageState extends State<MyHomePage> {
   FireBaseDB db = FireBaseDB();
   List<Command> _commands = [];
   double _currentSliderValue = 20;
-  double _settingSliderValue = 3;
+  double _intervalSliderValue = 3;
+  double _delaySliderValue = 8;
+  double _amountSliderValue = 20;
   dynamic _value = 0;
 
   void circleButtonPress(String buttonText) {
@@ -46,7 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
           break;
         case "Save settings":
           command = instantFeedCommand();
-          _value = _settingSliderValue;
+          _value = _intervalSliderValue;
+          _value = _delaySliderValue;
+          _value = _amountSliderValue;
           break;
       }
       if (command != null) {
@@ -77,6 +81,36 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget statisticsTab() {
+    return Column(children: [
+      const SizedBox(
+        height: 75,
+      ),
+      Column(children: [
+        const Text('Amount of food given today:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 5),
+        const Text('Placeholder', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        Divider(),
+        const SizedBox(height: 5),
+        const Text('The average amount of food each week:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 5),
+        const Text('Placeholder', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        Divider(),
+        const SizedBox(height: 5),
+        const Text('Undereating or overeating:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 5),
+        const Text('Placeholder', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        Divider(),
+        const SizedBox(height: 5),
+        const Text('Refill status:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 5),
+        const Text('Placeholder', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        Divider(),
+        const SizedBox(height: 5),
+      ]),
+    ]);
+  }
+
   Widget controlTab() {
     return Column(children: [
       Padding(
@@ -86,8 +120,8 @@ class _MyHomePageState extends State<MyHomePage> {
         const Text("Choose amount"),
         Slider(
           value: _currentSliderValue,
-          max: 200,
-          divisions: 40,
+          max: 50,
+          divisions: 10,
           label: "${_currentSliderValue.round()}g",
           onChanged: (double value) {
             setState(() {
@@ -102,25 +136,53 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget settingsTab() {
     return Column(children: [
       const SizedBox(
-        height: 200,
+        height: 75,
       ),
       Column(children: [
-        const Text("Interval",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold
-          ),
+        const Text(
+          "Times a day:",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         Slider(
-      value: _settingSliderValue,
-      max: 10,
-      divisions: 10,
-      label: "${_settingSliderValue.round()} times a day",
-      onChanged: (double value) {
-        setState(() {
-          _settingSliderValue = value;
-        });
-      },
+          value: _intervalSliderValue,
+          max: 7,
+          divisions: 7,
+          label: "${_intervalSliderValue.round()} intervals a day",
+          onChanged: (double value) {
+            setState(() {
+              _intervalSliderValue = value;
+            });
+          },
+        ),
+        const Text(
+          "How many hours in between:",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Slider(
+          value: _delaySliderValue,
+          max: 24,
+          divisions: 24,
+          label: "Every ${_delaySliderValue.round()} hours a day",
+          onChanged: (double value) {
+            setState(() {
+              _delaySliderValue = value;
+            });
+          },
+        ),
+        const Text(
+          "Amount of food:",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Slider(
+          value: _amountSliderValue,
+          max: 50,
+          divisions: 25,
+          label: "${_amountSliderValue.round()} amount each interval",
+          onChanged: (double value) {
+            setState(() {
+              _amountSliderValue = value;
+            });
+          },
         ),
       ]),
       roundButton("Save settings", 50)
@@ -141,10 +203,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 Tab(text: "Control"),
               ],
             ),
-            title: const Text('Tabs Demo'),
+            title: const Text('Feeder 9000'),
           ),
           body: TabBarView(children: [
-            Text("Stats placeholder"),
+            statisticsTab(),
             settingsTab(),
             controlTab(),
           ]),
