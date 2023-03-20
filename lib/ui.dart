@@ -1,5 +1,4 @@
-import 'dart:ffi';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fooddataagg/command.dart';
 import 'package:fooddataagg/firebase.dart';
@@ -27,6 +26,7 @@ class MyHomePage extends StatefulWidget {
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
+
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -37,8 +37,11 @@ class _MyHomePageState extends State<MyHomePage> {
   double _delaySliderValue = 8;
   double _amountSliderValue = 20;
   dynamic _value = 0;
+  String _data = "";
 
   void circleButtonPress(String buttonText) {
+    bool getSet = false;
+
     setState(() {
       Command? command = null;
       switch (buttonText) {
@@ -52,12 +55,60 @@ class _MyHomePageState extends State<MyHomePage> {
           _value = _delaySliderValue;
           _value = _amountSliderValue;
           break;
+        case "get":
+          command = getDataCommand();
+          command.executeGet(_data).then((data) {
+            setState(() {
+              _data = data;
+            });
+          });
+          getSet = true;
       }
       if (command != null) {
-        command.execute(_value);
+        if(getSet == false) {
+          command.executeSet(_value);
+        }
         _commands.add(command);
       }
+      getSet = false;
     });
+  }
+
+
+  Widget buildText(String buttonText){
+    return Text(buttonText, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold));
+  }
+
+  Widget eatingCondition(){
+    int number = 41;
+    if (number <= 50) {
+      return Text('Undereating', style: TextStyle(
+          fontSize: 30, fontWeight: FontWeight.bold, color: Colors.red));
+    } else if(number >=90) {
+    return Text('Overeating', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.red));
+      } else if (number >= 51 && number <= 89) {
+      return Text('Healthy eating', style: TextStyle(
+          fontSize: 30, fontWeight: FontWeight.bold, color: Colors.green));
+    } else {
+        return Text('Error', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.purple));
+    }
+  }
+
+  Widget refillStatus(){
+    int number = 2;
+    switch(number) {
+      case 0:
+        return Text('Empty', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.red));
+        break; // The switch statement must be told to exit, or it will execute every case.
+      case 1:
+        return Text('Half full', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.yellow));
+        break;
+      case 2:
+        return Text('Full', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.green));
+        break;
+      default:
+        return Text('Error', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.purple));
+    }
   }
 
   Widget roundButton(String buttonText, double size) {
@@ -87,26 +138,17 @@ class _MyHomePageState extends State<MyHomePage> {
         height: 75,
       ),
       Column(children: [
-        const Text('Amount of food given today:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 5),
-        const Text('Placeholder', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        const Text('Everything is mock data', style: TextStyle(fontSize: 20, fontStyle: FontStyle.italic)),
         Divider(),
-        const SizedBox(height: 5),
-        const Text('The average amount of food each week:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 5),
-        const Text('Placeholder', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-        Divider(),
-        const SizedBox(height: 5),
-        const Text('Undereating or overeating:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 5),
-        const Text('Placeholder', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-        Divider(),
-        const SizedBox(height: 5),
-        const Text('Refill status:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 5),
-        const Text('Placeholder', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-        Divider(),
-        const SizedBox(height: 5),
+        const SizedBox(height: 20),
+        buildText('Amount of food given today:'),
+        const Text('70g', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        buildText('The average amount of food each week:'),
+        const Text('78g', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        buildText('Undereating or overeating:'),
+        eatingCondition(),
+        buildText('Refill status:'),
+        refillStatus(),
       ]),
     ]);
   }
@@ -114,10 +156,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget controlTab() {
     return Column(children: [
       Padding(
-          padding: EdgeInsets.only(top: 200.0, bottom: 50.0),
+          padding: EdgeInsets.only(top: 150.0, bottom: 50.0),
           child: roundButton("Feed now", 90)),
       Column(children: [
-        const Text("Choose amount"),
+        buildText("Choose amount"),
         Slider(
           value: _currentSliderValue,
           max: 50,
@@ -129,7 +171,10 @@ class _MyHomePageState extends State<MyHomePage> {
             });
           },
         ),
+        buildText("Last time fed:"),
+        Text(_data),
       ]),
+      roundButton("get", 10)
     ]);
   }
 
