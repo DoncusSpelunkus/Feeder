@@ -1,6 +1,5 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:fooddataagg/Screen/settingsScreen.dart';
 import 'package:fooddataagg/command.dart';
 import 'package:fooddataagg/firebase.dart';
 
@@ -183,6 +182,15 @@ class _MyHomePageState extends State<MyHomePage> {
               _amountSliderValue = value;
             });
           },
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context)=> SettingsScreen(
+
+                )));
+          },
+          child: Text("Make new schedule"),
         ),
       ]),
       roundButton("Save settings", 50)
