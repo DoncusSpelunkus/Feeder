@@ -13,7 +13,7 @@ main() async {
 
   Broker broker = Broker();
 
-  broker.brokerSetup();
+  await broker.brokerSetup();
 
   broker.startUp();
 

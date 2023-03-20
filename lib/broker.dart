@@ -105,11 +105,12 @@ class Broker {
   }
 
   void startUp(){
-    const pubTopic = 'APP/Publish';
+    const pubTopic = 'APP/Startup';
     final builder = MqttClientPayloadBuilder();
     builder.addString("Hello");
 
     client.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
+
   }
 
 
