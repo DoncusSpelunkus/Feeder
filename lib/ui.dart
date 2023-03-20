@@ -38,11 +38,24 @@ class _MyHomePageState extends State<MyHomePage> {
   double _amountSliderValue = 20;
   dynamic _value = 0;
   String _data = "";
+  String time = "";
+  String weight = "";
+
+  @override
+  void initState() {
+    super.initState();
+    // Call getDataCommand() when the app starts
+    getDataCommand().executeGet(_data).then((data) {
+      setState(() {
+        time = data.substring(1, 28);
+        weight = data.substring(30, 42);
+      });
+    });
+  }
 
   void circleButtonPress(String buttonText) {
     bool getSet = false;
-
-    setState(() {
+    setState(() async {
       Command? command = null;
       switch (buttonText) {
         case "Feed now":
@@ -59,7 +72,8 @@ class _MyHomePageState extends State<MyHomePage> {
           command = getDataCommand();
           command.executeGet(_data).then((data) {
             setState(() {
-              _data = data;
+              time = data.substring(1, 28);
+              weight = data.substring(30, 42);
             });
           });
           getSet = true;
@@ -172,7 +186,8 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
         buildText("Last time fed:"),
-        Text(_data),
+        Text(time),
+        Text('${weight}'),
       ]),
       roundButton("get", 10)
     ]);
