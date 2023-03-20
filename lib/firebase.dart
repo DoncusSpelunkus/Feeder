@@ -27,8 +27,8 @@ class FireBaseDB {
     return _ref;
   }
 
-  Future<String> testGet(dynamic data) async {
-    setRef("Recent");
+  Future<String> testGet(dynamic data, String ref) async {
+    setRef(ref);
     final snapshot = await _ref!.get();
     if (snapshot.exists) {
       return snapshot.value.toString();
@@ -37,13 +37,14 @@ class FireBaseDB {
     }
   }
 
-  Future<void> testSet(double weight) async {
-    setRef("Recent");
+  Future<void> testSet(double weight, String ref) async {
+    setRef(ref);
     await _ref!.set({
       "Time": DateFormat("yyyy-MM-dd - HH:mm:ss").format(DateTime.now()),
       "Weight": weight.toString(),
     });
   }
+
 
   Future<void> makeSetting(double time, double weight) async {
     setRef("Setting");

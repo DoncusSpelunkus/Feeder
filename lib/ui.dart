@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fooddataagg/Screen/settingsScreen.dart';
-import 'package:fooddataagg/command.dart';
 import 'package:fooddataagg/firebase.dart';
+
+import 'broker.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -31,62 +32,64 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   FireBaseDB db = FireBaseDB();
-  List<Command> _commands = [];
+  Broker broker = Broker();
   double _currentSliderValue = 20;
   double _intervalSliderValue = 3;
   double _delaySliderValue = 8;
   double _amountSliderValue = 20;
-  dynamic _value = 0;
   String _data = "";
-  String time = "";
-  String weight = "";
+  String _currentData = "";
+  String recentTime = "";
+  String recentWeight = "";
+  String currentTime = "";
+  String currentWeight = "";
 
   @override
   void initState() {
     super.initState();
     // Call getDataCommand() when the app starts
-    getDataCommand().executeGet(_data).then((data) {
-      setState(() {
-        time = data.substring(1, 28);
-        weight = data.substring(30, 42);
-      });
-    });
+    getSentData("Recent");
+    getSentData("CurrentWeight");
   }
 
   void circleButtonPress(String buttonText) {
-    bool getSet = false;
     setState(() async {
-      Command? command = null;
       switch (buttonText) {
         case "Feed now":
-          command = instantFeedCommand();
-          _value = _currentSliderValue;
+          broker.publish(_currentSliderValue.toString());
+          await db.testSet(_currentSliderValue, "Recent");
+          getSentData("Recent");
           break;
         case "Save settings":
-          command = instantFeedCommand();
-          _value = _intervalSliderValue;
-          _value = _delaySliderValue;
-          _value = _amountSliderValue;
           break;
         case "get":
-          command = getDataCommand();
-          command.executeGet(_data).then((data) {
-            setState(() {
-              time = data.substring(1, 28);
-              weight = data.substring(30, 42);
-            });
-          });
-          getSet = true;
+          getSentData("Recent");
+          break;
       }
-      if (command != null) {
-        if(getSet == false) {
-          command.executeSet(_value);
-        }
-        _commands.add(command);
-      }
-      getSet = false;
     });
   }
+
+  void getSentData(String ref){
+      switch (ref) {
+        case "CurrentWeight":
+          db.testGet(_currentData, ref).then((data) {
+            setState(() {
+              recentTime = data.substring(1, 28);
+              recentWeight = data.substring(30, 42);
+            });
+          });
+          break;
+        case "Recent":
+          db.testGet(_data, ref).then((data) {
+            setState(() {
+              currentTime = data.substring(1, 28);
+              currentWeight = data.substring(30, 42);
+            });
+          });
+          break;
+      }
+    }
+
 
 
   Widget buildText(String buttonText){
@@ -169,6 +172,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget controlTab() {
     return Column(children: [
+      SizedBox(
+        height: 20.0,
+      ),
+      Text('${currentWeight}'),
       Padding(
           padding: EdgeInsets.only(top: 150.0, bottom: 50.0),
           child: roundButton("Feed now", 90)),
@@ -176,8 +183,9 @@ class _MyHomePageState extends State<MyHomePage> {
         buildText("Choose amount"),
         Slider(
           value: _currentSliderValue,
-          max: 50,
-          divisions: 10,
+          min: 10,
+          max: 200,
+          divisions: 8,
           label: "${_currentSliderValue.round()}g",
           onChanged: (double value) {
             setState(() {
@@ -186,10 +194,9 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
         buildText("Last time fed:"),
-        Text(time),
-        Text('${weight}'),
+        Text(recentTime),
+        Text('${recentWeight}'),
       ]),
-      roundButton("get", 10)
     ]);
   }
 

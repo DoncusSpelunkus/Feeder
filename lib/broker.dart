@@ -53,7 +53,7 @@ class Broker {
       final pt =
       MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       var messageDouble = double.parse(pt.toString());
-      db.testSet(messageDouble);
+      db.testSet(messageDouble, "CurrentWeight");
       print(messageDouble);
     });
 
